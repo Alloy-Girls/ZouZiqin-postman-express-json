@@ -7,8 +7,6 @@ console.log('imooc started on port 3000');
 
 var control = require('./routes/json.js');
 
-app.get('/',function(req,res){res.send("ok");});
-
 app.post('/products',control.insert);
 app.get('/products/:id',control.findOne);
 app.get('/products',control.find);

@@ -13,6 +13,7 @@ fs.exists('./data.json', function (exists) {
 
 //设置初始化id为0
 var id = 0;
+var removeNum = 0;
 
 var insert = function(req,res){
   var products = [];
@@ -37,7 +38,7 @@ var insert = function(req,res){
     else {
       id = 0;
     }
-    data.id = id;
+    data.id = id + removeNum;
     id = id + 1;
     products.push(data);
     fs.writeFile('./data.json', JSON.stringify(products), function(err){
@@ -134,6 +135,7 @@ var remove = function(req,res){
         res.send("505 删除数据出错");
       }
     });
+    removeNum++;
     res.send("204 删除成功");
   });
 };
