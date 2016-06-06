@@ -33,7 +33,7 @@ var insert = function(req,res){
   fs.readFile('./data.json', 'utf8', function(err, result){
     products = JSON.parse(result);
     if (products.length !== 0){
-      id = products.length;
+      id = products[products.length-1].id + 1;
     }
     else {
       id = 0;
