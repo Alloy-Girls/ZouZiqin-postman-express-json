@@ -1,14 +1,14 @@
 var fs = require('fs');
-var fileName = 'data.json';
+var File_Name = 'data.json';
 //判断文件是否存在，若不存在新建文件
-fs.exists(fileName, function (exists) {
+fs.exists(File_Name, function (exists) {
   if (!exists) {
-    fs.open(fileName, 'a', function (err, fd) {
+    fs.open(File_Name, 'a', function (err, fd) {
       if (err) {
         console.log("创建文件失败");
       }
     });
-    fs.writeFile(fileName,'[]',function(err){});
+    fs.writeFile(File_Name,'[]',function(err){});
   }
 });
 
@@ -31,7 +31,7 @@ var insert = function(req,res){
     "unit": addData.unit,
     "price": addData.price
   };
-  fs.readFile(fileName, 'utf8', function(err, result){
+  fs.readFile(File_Name, 'utf8', function(err, result){
     products = JSON.parse(result);
     if (products.length !== 0){
       id = products.length;
@@ -42,7 +42,7 @@ var insert = function(req,res){
     data.id = id + removeNum;
     id = id + 1;
     products.push(data);
-    fs.writeFile(fileName, JSON.stringify(products), function(err){
+    fs.writeFile(File_Name, JSON.stringify(products), function(err){
       if(err){
         res.status(505).send("添加数据出错");
       }
@@ -54,7 +54,7 @@ var insert = function(req,res){
 var findOne = function(req,res){
   var products = [];
   var data_id = parseInt(req.params.id);
-  fs.readFile(fileName, 'utf8', function(err, result){
+  fs.readFile(File_Name, 'utf8', function(err, result){
     products = JSON.parse(result);
     var item = getItem(data_id,products);
     if (item) {
@@ -76,7 +76,7 @@ var getItem = function(id,products){
 
 var find = function(req,res){
   var products = [];
-  fs.readFile(fileName, 'utf8', function(err, result){
+  fs.readFile(File_Name, 'utf8', function(err, result){
     products = JSON.parse(result);
     res.status(200).json(products);
   });
@@ -95,13 +95,13 @@ var update = function(req,res){
     "unit": updateData.unit,
     "price": updateData.price
   };
-  fs.readFile(fileName, 'utf8', function(err, result){
+  fs.readFile(File_Name, 'utf8', function(err, result){
     products = JSON.parse(result);
     var item = updateProduct(data_id,data,products);
     if (!item) {
       res.status(404).send("没有此商品");
     }
-    fs.writeFile(fileName,JSON.stringify(products), function(err){
+    fs.writeFile(File_Name,JSON.stringify(products), function(err){
       if(err){
         res.status(505).send("修改数据出错");
       }
@@ -125,13 +125,13 @@ var updateProduct = function(id,data,products){
 var remove = function(req,res){
   var products = [];
   var data_id = parseInt(req.params.id);
-  fs.readFile(fileName, 'utf8', function(err, result){
+  fs.readFile(File_Name, 'utf8', function(err, result){
     products = JSON.parse(result);
     var isTure = removeProduct(data_id,products);
     if (!isTure) {
       res.status(404).send("没有此商品");
     }else {
-      fs.writeFile(fileName,JSON.stringify(products), function(err){
+      fs.writeFile(File_Name,JSON.stringify(products), function(err){
         if(err){
           res.status(505).send("删除数据出错");
         }
