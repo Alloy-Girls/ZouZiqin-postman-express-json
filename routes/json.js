@@ -1,13 +1,14 @@
 var fs = require('fs');
+var fileName = 'data.json';
 //判断文件是否存在，若不存在新建文件
-fs.exists('./data.json', function (exists) {
+fs.exists(fileName, function (exists) {
   if (!exists) {
-    fs.open('./data.json', 'a', function (err, fd) {
+    fs.open(fileName, 'a', function (err, fd) {
       if (err) {
         console.log("创建文件失败");
       }
     });
-    fs.writeFile('./data.json','[]',function(err){});
+    fs.writeFile(fileName,'[]',function(err){});
   }
 });
 
@@ -19,10 +20,10 @@ var insert = function(req,res){
   var products = [];
   var addData = req.body;
   if (!isTrueDataProterty(addData)) {
-    res.send("401 输入数据缺失属性");
+    res.status(401).send("输入数据缺失属性");
   }
   if (!isTrueDataType(addData)) {
-    res.send("400 输入的数据类型错误");
+    res.status(404).send("输入的数据类型错误");
   }
   var data = {
     "barcode": addData.barcode,
@@ -30,10 +31,10 @@ var insert = function(req,res){
     "unit": addData.unit,
     "price": addData.price
   };
-  fs.readFile('./data.json', 'utf8', function(err, result){
+  fs.readFile(fileName, 'utf8', function(err, result){
     products = JSON.parse(result);
     if (products.length !== 0){
-      id = products[products.length-1].id + 1;
+      id = products.length;
     }
     else {
       id = 0;
@@ -41,9 +42,9 @@ var insert = function(req,res){
     data.id = id + removeNum;
     id = id + 1;
     products.push(data);
-    fs.writeFile('./data.json', JSON.stringify(products), function(err){
+    fs.writeFile(fileName, JSON.stringify(products), function(err){
       if(err){
-        res.send("505 添加数据出错");
+        res.status(505).send("添加数据出错");
       }
     });
     res.status(201).json(data);
@@ -53,14 +54,14 @@ var insert = function(req,res){
 var findOne = function(req,res){
   var products = [];
   var data_id = parseInt(req.params.id);
-  fs.readFile('./data.json', 'utf8', function(err, result){
+  fs.readFile(fileName, 'utf8', function(err, result){
     products = JSON.parse(result);
     var item = getItem(data_id,products);
     if (item) {
       res.status(200).json(item);
     }
     else {
-      res.send("404 没有此商品");
+      res.status(404).send("没有此商品");
     }
   });
 };
@@ -75,7 +76,7 @@ var getItem = function(id,products){
 
 var find = function(req,res){
   var products = [];
-  fs.readFile('./data.json', 'utf8', function(err, result){
+  fs.readFile(fileName, 'utf8', function(err, result){
     products = JSON.parse(result);
     res.status(200).json(products);
   });
@@ -86,7 +87,7 @@ var update = function(req,res){
   var data_id = parseInt(req.params.id);
   var updateData = req.body;
   if (!isTrueDataType(updateData)) {
-    res.send("400 输入的数据类型错误");
+    res.status(400).send("输入的数据类型错误");
   }
   var data = {
     "barcode": updateData.barcode,
@@ -94,15 +95,15 @@ var update = function(req,res){
     "unit": updateData.unit,
     "price": updateData.price
   };
-  fs.readFile('./data.json', 'utf8', function(err, result){
+  fs.readFile(fileName, 'utf8', function(err, result){
     products = JSON.parse(result);
     var item = updateProduct(data_id,data,products);
     if (!item) {
-      res.send("404 没有此商品");
+      res.status(404).send("没有此商品");
     }
-    fs.writeFile('./data.json',JSON.stringify(products), function(err){
+    fs.writeFile(fileName,JSON.stringify(products), function(err){
       if(err){
-        res.send("505 修改数据出错");
+        res.status(505).send("修改数据出错");
       }
     });
     res.status(200).json(item);
@@ -124,19 +125,20 @@ var updateProduct = function(id,data,products){
 var remove = function(req,res){
   var products = [];
   var data_id = parseInt(req.params.id);
-  fs.readFile('./data.json', 'utf8', function(err, result){
+  fs.readFile(fileName, 'utf8', function(err, result){
     products = JSON.parse(result);
     var isTure = removeProduct(data_id,products);
     if (!isTure) {
-      res.send("404 没有此商品");
+      res.status(404).send("没有此商品");
+    }else {
+      fs.writeFile(fileName,JSON.stringify(products), function(err){
+        if(err){
+          res.status(505).send("删除数据出错");
+        }
+      });
+      removeNum++;
+      res.status(204).send("删除成功");
     }
-    fs.writeFile('./data.json',JSON.stringify(products), function(err){
-      if(err){
-        res.send("505 删除数据出错");
-      }
-    });
-    removeNum++;
-    res.send("204 删除成功");
   });
 };
 
