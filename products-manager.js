@@ -1,5 +1,6 @@
 var fs = require('fs');
 var nextId = require('./next-id');
+var _ = require('lodash');
 
 var FILE_NAME = 'data.json';
 
@@ -30,17 +31,9 @@ var save = function(addData){
 
 var getOne = function(id){
   var products = JSON.parse(fs.readFileSync(FILE_NAME));
-  var item = getItem(parseInt(id),products);
+  var item =  _.find(products, ['id' , parseInt(id)]);
   if (item) {
     return item;
-  }
-};
-
-var getItem = function(id,products){
-  for (var i = 0; i < products.length; i++) {
-    if (products[i].id === id) {
-      return products[i];
-    }
   }
 };
 
@@ -78,9 +71,7 @@ var updateProduct = function(id,data,products){
 var remove = function(id){
   var products = JSON.parse(fs.readFileSync(FILE_NAME));
   var isTure = removeProduct(parseInt(id),products);
-  if (!isTure) {
-    return false;
-  }else {
+  if (isTure) {
     fs.writeFile(FILE_NAME,JSON.stringify(products), function(err){});
     return true;
   }
